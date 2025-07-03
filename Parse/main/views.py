@@ -1,10 +1,12 @@
 from django.shortcuts import render
+from django.db.models import Q
 
 from rest_framework import mixins, viewsets, status
 from rest_framework.response import Response
 
 from .serializers import *
 from .services import Partial, CustomPagination
+from .filters import BookmarkFilter
 # Create your views here.
 
 
@@ -16,6 +18,7 @@ class MainApiView(mixins.CreateModelMixin,
                   viewsets.GenericViewSet):
 
     pagination_class = CustomPagination
+    filterset_class = BookmarkFilter
     queryset = Bookmark.objects.all()
 
     def get_serializer_class(self):
@@ -50,3 +53,5 @@ class MainApiView(mixins.CreateModelMixin,
 
         serializer = self.get_serializer(new_url)
         return Response(serializer.data, status.HTTP_201_CREATED)
+
+
