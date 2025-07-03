@@ -5,6 +5,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, viewsets, status
 from rest_framework.response import Response
 from rest_framework import filters
+from rest_framework.permissions import IsAdminUser, AllowAny
 
 from .serializers import *
 from .services import Partial, CustomPagination
@@ -25,7 +26,11 @@ class MainApiView(mixins.CreateModelMixin,
     search_fields = ['title', 'url']
     queryset = Bookmark.objects.all()
 
-
+    #Тут интересно почему в скобках все пишут, не очень понятен момент
+    def get_permissions(self):
+        if self.action == "destroy":
+            return [IsAdminUser()]
+        return [AllowAny()]
 
     def get_serializer_class(self):
         if self.action == 'create':
