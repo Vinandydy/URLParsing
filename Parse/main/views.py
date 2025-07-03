@@ -1,8 +1,10 @@
 from django.shortcuts import render
 from django.db.models import Q
+from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework import mixins, viewsets, status
 from rest_framework.response import Response
+from rest_framework import filters
 
 from .serializers import *
 from .services import Partial, CustomPagination
@@ -19,7 +21,11 @@ class MainApiView(mixins.CreateModelMixin,
 
     pagination_class = CustomPagination
     filterset_class = BookmarkFilter
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    search_fields = ['title', 'url']
     queryset = Bookmark.objects.all()
+
+
 
     def get_serializer_class(self):
         if self.action == 'create':
