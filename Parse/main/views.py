@@ -12,6 +12,7 @@ from .services import Partial, CustomPagination
 class MainApiView(mixins.CreateModelMixin,
                   mixins.ListModelMixin,
                   mixins.DestroyModelMixin,
+                  mixins.RetrieveModelMixin,
                   viewsets.GenericViewSet):
 
     pagination_class = CustomPagination
