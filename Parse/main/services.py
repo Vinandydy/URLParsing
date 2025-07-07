@@ -2,6 +2,7 @@ from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 import requests
 from rest_framework.pagination import PageNumberPagination
+import pandas as pd
 
 
 def partial(url):
@@ -38,3 +39,7 @@ def partial(url):
 
 class CustomPagination(PageNumberPagination):
     page_size = 10
+
+
+def xlsx_formate(queryset):
+    pass
