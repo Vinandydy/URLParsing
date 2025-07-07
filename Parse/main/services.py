@@ -1,9 +1,11 @@
+from http.client import responses
 from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 import requests
+from django.http import FileResponse
 from rest_framework.pagination import PageNumberPagination
 import pandas as pd
-
+from io import BytesIO
 
 def partial(url):
     try:
@@ -41,5 +43,18 @@ class CustomPagination(PageNumberPagination):
     page_size = 10
 
 
-def xlsx_formate(queryset):
-    pass
+def xlsx_format(queryset):
+    df = pd.DataFrame.from_records(queryset.values(), exclude=['time_created', 'time_deleted'])
+
+    export = BytesIO()
+    df.to_excel(export, index=False)
+    export.seek(0)
+
+    response = FileResponse(
+        export,
+        as_attachment=True,
+        filename='data.xlsx',
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response["Content-Disposition"] = "attachment; filename=data.xlsx"
+    return response
