@@ -4,7 +4,7 @@ import requests
 from rest_framework.pagination import PageNumberPagination
 
 
-def Partial(url):
+def partial(url):
     try:
         response = requests.get(url)
         response.raise_for_status()

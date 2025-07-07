@@ -14,7 +14,7 @@ class Bookmark(models.Model):
     time_deleted = models.DateTimeField(null=True)
     favicon = models.URLField(null=True)
     url = models.URLField(verbose_name='URL')
-    title = models.CharField(max_length=255, default='Smth')
+    title = models.CharField(max_length=255)
     description = models.CharField(null=True, max_length=255)
     group = models.ForeignKey(
         to=Group,
