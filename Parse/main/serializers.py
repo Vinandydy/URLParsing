@@ -1,9 +1,10 @@
+from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from main.models import Bookmark
+from main.models import Bookmark, Favorite
 from main.services import partial
 
-#Сериалайзер POST запроса, по ТЗ требуется, чтобы пользователь только URL достаточно было ввести
+
 class MainPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Bookmark
@@ -44,3 +45,29 @@ class MainDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Bookmark
         fields = ['id', 'title', 'description', 'url', 'time_created']
+
+#Тут просит Bookmark сущность, а не URL. Нужно подумать.
+class FavoriteCreateSerializer(serializers.ModelSerializer):
+
+    bookmark = serializers.PrimaryKeyRelatedField(
+        queryset=Bookmark.objects.all(),
+        default=None,
+        required=False,
+        allow_null=True,
+        label="Закладка",
+    )
+    class Meta:
+        model = Favorite
+        fields = ['bookmark']
+
+    def create(self, validated_data):
+        return Favorite.objects.create(**validated_data)
+
+
+class FavoriteSerializer(serializers.ModelSerializer):
+    url = serializers.CharField(source='bookmark.url')
+    title = serializers.CharField(source='bookmark.title')
+
+    class Meta:
+        model = Favorite
+        fields = ['url', 'title']

@@ -4,6 +4,9 @@ from django.utils import timezone
 
 # Create your models here.
 
+
+
+
 class Group(models.Model):
     name = models.CharField(max_length=255, unique=True)
     order = models.IntegerField()
@@ -37,3 +40,21 @@ class Bookmark(models.Model):
     def delete(self, using=None, keep_parents=False):
         self.time_deleted = timezone.now()
         self.save()
+
+
+class Favorite(models.Model):
+    bookmark = models.ForeignKey(
+        Bookmark,
+        on_delete=models.CASCADE,
+        related_name='favorites',
+    )
+    user = models.ForeignKey(
+        'auth.User',
+        on_delete=models.CASCADE,
+        related_name='favorite_bookmarks',
+    )
+
+    class Meta:
+        verbose_name = 'Избранное'
+        verbose_name_plural = 'Избранные закладки пользователей'
+        unique_together = (('bookmark', 'user'),)

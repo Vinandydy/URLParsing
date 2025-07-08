@@ -8,7 +8,7 @@ import pandas as pd
 from rest_framework import mixins, viewsets, status
 from rest_framework.response import Response
 from rest_framework import filters
-from rest_framework.permissions import IsAdminUser, AllowAny
+from rest_framework.permissions import IsAdminUser, AllowAny, IsAuthenticated
 from rest_framework.decorators import action, permission_classes
 
 from .serializers import *
@@ -61,3 +61,22 @@ class MainApiView(mixins.CreateModelMixin,
         data = self.get_queryset()
         response = xlsx_format(data)
         return response
+
+
+class FavoriteViewSet(mixins.CreateModelMixin,
+                      mixins.DestroyModelMixin,
+                      mixins.ListModelMixin,
+                      viewsets.GenericViewSet):
+
+    queryset = Favorite.objects.all()
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return FavoriteCreateSerializer
+        return FavoriteSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status.HTTP_201_CREATED)
