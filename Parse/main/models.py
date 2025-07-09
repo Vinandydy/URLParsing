@@ -41,6 +41,9 @@ class Bookmark(models.Model):
         self.time_deleted = timezone.now()
         self.save()
 
+    def __str__(self):
+        return self.url
+
 
 class Favorite(models.Model):
     bookmark = models.ForeignKey(
@@ -54,7 +57,9 @@ class Favorite(models.Model):
         related_name='favorite_bookmarks',
     )
 
+
     class Meta:
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранные закладки пользователей'
         unique_together = (('bookmark', 'user'),)
+

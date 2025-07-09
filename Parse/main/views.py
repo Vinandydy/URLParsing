@@ -17,7 +17,6 @@ from .filters import BookmarkFilter
 # Create your views here.
 
 
-
 class MainApiView(mixins.CreateModelMixin,
                   mixins.ListModelMixin,
                   mixins.DestroyModelMixin,
@@ -43,13 +42,11 @@ class MainApiView(mixins.CreateModelMixin,
             return MainDetailSerializer
         return MainSerializer
 
-
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status.HTTP_201_CREATED)
-
 
     @action(
         detail=False,

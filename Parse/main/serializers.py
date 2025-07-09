@@ -6,10 +6,11 @@ from main.services import partial
 
 
 class MainPostSerializer(serializers.ModelSerializer):
+
+
     class Meta:
         model = Bookmark
         fields = ['url']
-
 
     def create(self, validated_data):
         url = validated_data['url']
@@ -33,18 +34,21 @@ class MainPostSerializer(serializers.ModelSerializer):
         return parsed_url
 
 
-
-
 class MainSerializer(serializers.ModelSerializer):
+
+
     class Meta:
         model = Bookmark
         fields = ['url', 'title', 'favicon']
 
 
 class MainDetailSerializer(serializers.ModelSerializer):
+
+
     class Meta:
         model = Bookmark
         fields = ['id', 'title', 'description', 'url', 'time_created']
+
 
 #Тут просит Bookmark сущность, а не URL. Нужно подумать.
 class FavoriteCreateSerializer(serializers.ModelSerializer):
@@ -56,6 +60,8 @@ class FavoriteCreateSerializer(serializers.ModelSerializer):
         allow_null=True,
         label="Закладка",
     )
+
+
     class Meta:
         model = Favorite
         fields = ['bookmark']
@@ -67,6 +73,7 @@ class FavoriteCreateSerializer(serializers.ModelSerializer):
 class FavoriteSerializer(serializers.ModelSerializer):
     url = serializers.CharField(source='bookmark.url')
     title = serializers.CharField(source='bookmark.title')
+
 
     class Meta:
         model = Favorite
