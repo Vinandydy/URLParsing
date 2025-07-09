@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from main.models import Bookmark, Favorite
@@ -50,7 +49,6 @@ class MainDetailSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'description', 'url', 'time_created']
 
 
-#Тут просит Bookmark сущность, а не URL. Нужно подумать.
 class FavoriteCreateSerializer(serializers.ModelSerializer):
 
     bookmark = serializers.PrimaryKeyRelatedField(
@@ -66,15 +64,35 @@ class FavoriteCreateSerializer(serializers.ModelSerializer):
         model = Favorite
         fields = ['bookmark']
 
+    def validate_url(self, url):
+        bookmark = Bookmark.objects.filter(url=url, time_deleted__isnull=True).first()
+        if not bookmark:
+            raise serializers.ValidationError('Данной URL не существует')
+        return url
+
     def create(self, validated_data):
-        return Favorite.objects.create(**validated_data)
+        request = self.context.get('request')
+        print(request)
+        if not request or request.user.is_authenticated:
+            raise serializers.ValidationError('Пользователь не авторизован')
+
+        user = request.user
+        #{'bookmark': <Bookmark: https://pypi.org/project/beautifulsoup4/>}
+        url = validated_data['bookmark']
+        bookmark = Bookmark.objects.get(url=url, time_deleted__isnull=True)
+
+        if Favorite.objects.filter(bookmark=bookmark, user=user).exists():
+            raise serializers.ValidationError('Такая закладка этим пользователем уже добавлена')
+
+        return Favorite.objects.create(bookmark=bookmark, user=user)
 
 
 class FavoriteSerializer(serializers.ModelSerializer):
-    url = serializers.CharField(source='bookmark.url')
+    url = serializers.URLField(source='bookmark.url')
     title = serializers.CharField(source='bookmark.title')
-
+    favicon = serializers.URLField(source='bookmark.favicon')
+    description = serializers.URLField(source='bookmark.description')
 
     class Meta:
         model = Favorite
-        fields = ['url', 'title']
+        fields = ['url', 'title', 'favicon', 'description']
