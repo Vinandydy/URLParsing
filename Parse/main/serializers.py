@@ -34,16 +34,12 @@ class MainPostSerializer(serializers.ModelSerializer):
 
 
 class MainSerializer(serializers.ModelSerializer):
-
-
     class Meta:
         model = Bookmark
         fields = ['url', 'title', 'favicon']
 
 
 class MainDetailSerializer(serializers.ModelSerializer):
-
-
     class Meta:
         model = Bookmark
         fields = ['id', 'title', 'description', 'url', 'time_created']
@@ -59,7 +55,6 @@ class FavoriteCreateSerializer(serializers.ModelSerializer):
         label="Закладка",
     )
 
-
     class Meta:
         model = Favorite
         fields = ['bookmark']
@@ -72,9 +67,6 @@ class FavoriteCreateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         request = self.context.get('request')
-        print(request)
-        if not request or request.user.is_authenticated:
-            raise serializers.ValidationError('Пользователь не авторизован')
 
         user = request.user
         #{'bookmark': <Bookmark: https://pypi.org/project/beautifulsoup4/>}

@@ -66,6 +66,7 @@ class FavoriteViewSet(mixins.CreateModelMixin,
                       viewsets.GenericViewSet):
 
     queryset = Favorite.objects.all()
+    permission_classes = [IsAuthenticated]
 
     def get_serializer_class(self):
         if self.action == 'create':
