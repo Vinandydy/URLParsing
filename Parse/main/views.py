@@ -1,7 +1,8 @@
 from http.client import responses
 
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.db.models import Q
+from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 import pandas as pd
 
@@ -14,6 +15,7 @@ from rest_framework.decorators import action, permission_classes
 from .serializers import *
 from .services import partial, CustomPagination, xlsx_format
 from .filters import BookmarkFilter
+from .managers import BookmarkManager
 # Create your views here.
 
 
@@ -27,7 +29,7 @@ class MainApiView(mixins.CreateModelMixin,
     filterset_class = BookmarkFilter
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     search_fields = ['title', 'url']
-    queryset = Bookmark.objects.all()
+    queryset = Bookmark.objects.filter(time_deleted__isnull=True)
 
     #Тут интересно почему в скобках все пишут, не очень понятен момент
     def get_permissions(self):
@@ -47,6 +49,15 @@ class MainApiView(mixins.CreateModelMixin,
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status.HTTP_201_CREATED)
+
+    def destroy(self, request, *args, **kwargs):
+        bookmark = self.get_object()
+
+        bookmark.time_deleted = timezone.now()
+
+        bookmark.save()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(
         detail=False,
@@ -68,6 +79,11 @@ class FavoriteViewSet(mixins.CreateModelMixin,
     queryset = Favorite.objects.all()
     permission_classes = [IsAuthenticated]
 
+    def get_queryset(self):
+        user = self.request.user
+        data = Favorite.objects.filter(user__exact=user)
+        return data
+
     def get_serializer_class(self):
         if self.action == 'create':
             return FavoriteCreateSerializer
@@ -78,3 +94,16 @@ class FavoriteViewSet(mixins.CreateModelMixin,
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status.HTTP_201_CREATED)
+
+    def destroy(self, request, *args, **kwargs):
+        data = self.get_object()
+        if data.user != request.user:
+            return Response({'detail': 'У вас нет прав для удаления данной записи)'}, status=status.HTTP_403_FORBIDDEN)
+
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+
+
+

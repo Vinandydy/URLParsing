@@ -48,7 +48,7 @@ class MainDetailSerializer(serializers.ModelSerializer):
 class FavoriteCreateSerializer(serializers.ModelSerializer):
 
     bookmark = serializers.PrimaryKeyRelatedField(
-        queryset=Bookmark.objects.all(),
+        queryset=Bookmark.objects.filter(time_deleted__isnull=True),
         default=None,
         required=False,
         allow_null=True,
@@ -60,8 +60,8 @@ class FavoriteCreateSerializer(serializers.ModelSerializer):
         fields = ['bookmark']
 
     def validate_url(self, url):
-        bookmark = Bookmark.objects.filter(url=url, time_deleted__isnull=True).first()
-        if not bookmark:
+        validation = Favorite.objects.filter(url=url, time_deleted__isnull=True).first()
+        if not validation:
             raise serializers.ValidationError('Данной URL не существует')
         return url
 
@@ -70,9 +70,9 @@ class FavoriteCreateSerializer(serializers.ModelSerializer):
 
         user = request.user
         #{'bookmark': <Bookmark: https://pypi.org/project/beautifulsoup4/>}
-        url = validated_data['bookmark']
-        bookmark = Bookmark.objects.get(url=url, time_deleted__isnull=True)
-
+        bookmark = validated_data['bookmark']
+        #url = Bookmark.objects.get(url=url, time_deleted__isnull=True)
+        print(bookmark)
         if Favorite.objects.filter(bookmark=bookmark, user=user).exists():
             raise serializers.ValidationError('Такая закладка этим пользователем уже добавлена')
 
@@ -87,4 +87,9 @@ class FavoriteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Favorite
-        fields = ['url', 'title', 'favicon', 'description']
+        fields = ['url', 'title', 'favicon', 'description', 'user']
+
+    def list(self, request):
+        user = request.user
+        print(Favorite.objects.filter(user__exact=user))
+        return Favorite.objects.filter(user__exact=user)
