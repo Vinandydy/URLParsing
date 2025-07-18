@@ -7,13 +7,14 @@ from django_filters.rest_framework import DjangoFilterBackend
 import pandas as pd
 
 from rest_framework import mixins, viewsets, status
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework import filters
 from rest_framework.permissions import IsAdminUser, AllowAny, IsAuthenticated
 from rest_framework.decorators import action, permission_classes
 
 from .serializers import *
-from .services import partial, CustomPagination, xlsx_format
+from .services import partial, xlsx_format
 from .filters import BookmarkFilter
 from .managers import BookmarkManager
 # Create your views here.
@@ -25,13 +26,12 @@ class MainApiView(mixins.CreateModelMixin,
                   mixins.RetrieveModelMixin,
                   viewsets.GenericViewSet):
 
-    pagination_class = CustomPagination
+    pagination_class = PageNumberPagination
     filterset_class = BookmarkFilter
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     search_fields = ['title', 'url']
     queryset = Bookmark.objects.filter(time_deleted__isnull=True)
 
-    #Тут интересно почему в скобках все пишут, не очень понятен момент
     def get_permissions(self):
         if self.action == "destroy":
             return [IsAdminUser()]
@@ -44,19 +44,10 @@ class MainApiView(mixins.CreateModelMixin,
             return MainDetailSerializer
         return MainSerializer
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status.HTTP_201_CREATED)
-
     def destroy(self, request, *args, **kwargs):
         bookmark = self.get_object()
-
         bookmark.time_deleted = timezone.now()
-
         bookmark.save()
-
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(
@@ -99,8 +90,6 @@ class FavoriteViewSet(mixins.CreateModelMixin,
         data = self.get_object()
         if data.user != request.user:
             return Response({'detail': 'У вас нет прав для удаления данной записи)'}, status=status.HTTP_403_FORBIDDEN)
-
-
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 

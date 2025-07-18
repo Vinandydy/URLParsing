@@ -1,26 +1,27 @@
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 from main.models import Bookmark, Favorite
 from main.services import partial
 
 
 class MainPostSerializer(serializers.ModelSerializer):
-
-
     class Meta:
         model = Bookmark
         fields = ['url']
 
+    def validate(self, attrs):
+        url = attrs['url']
+        existing = Bookmark.objects.filter(url=url).first()
+        if existing:
+            raise ValidationError("Такое URL уже существует")
+        return url
+
     def create(self, validated_data):
         url = validated_data['url']
 
-        existing = Bookmark.objects.filter(url=url).first()
-        #Тут мне не позволило ошибку передать (мб что-то напутал) (как лучше сделать)
-        if existing: return existing
-
         parsed = partial(url)
         if 'error' in parsed:
-            #Попробовал с raise, для получения ошибки, но мне все же кажется, что есть более качественный способ
             raise serializers.ValidationError('Проблема с URL')
 
         parsed_url = Bookmark.objects.create(
@@ -29,7 +30,6 @@ class MainPostSerializer(serializers.ModelSerializer):
             favicon = parsed['favicon'],
             description = parsed['description']
         )
-
         return parsed_url
 
 
@@ -46,7 +46,6 @@ class MainDetailSerializer(serializers.ModelSerializer):
 
 
 class FavoriteCreateSerializer(serializers.ModelSerializer):
-
     bookmark = serializers.PrimaryKeyRelatedField(
         queryset=Bookmark.objects.filter(time_deleted__isnull=True),
         default=None,
@@ -59,23 +58,21 @@ class FavoriteCreateSerializer(serializers.ModelSerializer):
         model = Favorite
         fields = ['bookmark']
 
-    def validate_url(self, url):
-        validation = Favorite.objects.filter(url=url, time_deleted__isnull=True).first()
-        if not validation:
-            raise serializers.ValidationError('Данной URL не существует')
-        return url
+    def validate(self, attrs):
+        request = self.context.get('request')
+        user = request.user
+        bookmark = attrs['bookmark']
+        if bookmark is None:
+            raise ValidationError("Нету закладки")
+
+        if Favorite.objects.filter(bookmark=bookmark, user=user).exists():
+            raise serializers.ValidationError('Такая закладка этим пользователем уже добавлена')
+        return bookmark
 
     def create(self, validated_data):
         request = self.context.get('request')
-
         user = request.user
-        #{'bookmark': <Bookmark: https://pypi.org/project/beautifulsoup4/>}
         bookmark = validated_data['bookmark']
-        #url = Bookmark.objects.get(url=url, time_deleted__isnull=True)
-        print(bookmark)
-        if Favorite.objects.filter(bookmark=bookmark, user=user).exists():
-            raise serializers.ValidationError('Такая закладка этим пользователем уже добавлена')
-
         return Favorite.objects.create(bookmark=bookmark, user=user)
 
 
@@ -91,5 +88,4 @@ class FavoriteSerializer(serializers.ModelSerializer):
 
     def list(self, request):
         user = request.user
-        print(Favorite.objects.filter(user__exact=user))
         return Favorite.objects.filter(user__exact=user)

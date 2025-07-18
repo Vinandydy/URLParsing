@@ -38,11 +38,6 @@ def partial(url):
             "url": url
         }
 
-
-class CustomPagination(PageNumberPagination):
-    page_size = 10
-
-
 def xlsx_format(queryset):
     df = pd.DataFrame.from_records(queryset.values(), exclude=['time_created', 'time_deleted'])
 

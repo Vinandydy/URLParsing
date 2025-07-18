@@ -2,10 +2,6 @@ from django.db import models
 from .managers import BookmarkManager
 from django.utils import timezone
 
-# Create your models here.
-
-
-
 
 class Group(models.Model):
     name = models.CharField(max_length=255, unique=True)
@@ -25,7 +21,6 @@ class Bookmark(models.Model):
         on_delete=models.SET_NULL,
         related_name='bookmarks',
     )
-
     objects = BookmarkManager()
 
     class Meta:
@@ -56,7 +51,6 @@ class Favorite(models.Model):
         on_delete=models.CASCADE,
         related_name='favorite_bookmarks',
     )
-
 
     class Meta:
         verbose_name = 'Избранное'
