@@ -3,9 +3,12 @@ from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 import requests
 from django.http import FileResponse
-from rest_framework.pagination import PageNumberPagination
+from rest_framework import permissions
 import pandas as pd
 from io import BytesIO
+
+from rest_framework.permissions import BasePermission
+
 
 def partial(url):
     try:
@@ -37,6 +40,11 @@ def partial(url):
             "error": str(e),
             "url": url
         }
+
+class AdminOwnerPermission(permissions.BasePermission):
+    def custom_permission(self, request, view, obj):
+        return request.user.is_staff or obj.user == request.user
+
 
 def xlsx_format(queryset):
     df = pd.DataFrame.from_records(queryset.values(), exclude=['time_created', 'time_deleted'])

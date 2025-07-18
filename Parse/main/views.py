@@ -14,7 +14,7 @@ from rest_framework.permissions import IsAdminUser, AllowAny, IsAuthenticated
 from rest_framework.decorators import action, permission_classes
 
 from .serializers import *
-from .services import partial, xlsx_format
+from .services import partial, xlsx_format, AdminOwnerPermission
 from .filters import BookmarkFilter
 from .managers import BookmarkManager
 # Create your views here.
@@ -75,6 +75,11 @@ class FavoriteViewSet(mixins.CreateModelMixin,
         data = Favorite.objects.filter(user__exact=user)
         return data
 
+    def get_permissions(self):
+        if self.action == 'destroy':
+            return [AdminOwnerPermission]
+        return [IsAuthenticated]
+
     def get_serializer_class(self):
         if self.action == 'create':
             return FavoriteCreateSerializer
@@ -88,8 +93,6 @@ class FavoriteViewSet(mixins.CreateModelMixin,
 
     def destroy(self, request, *args, **kwargs):
         data = self.get_object()
-        if data.user != request.user:
-            return Response({'detail': 'У вас нет прав для удаления данной записи)'}, status=status.HTTP_403_FORBIDDEN)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
