@@ -77,14 +77,17 @@ class FavoriteCreateSerializer(serializers.ModelSerializer):
 
 
 class FavoriteSerializer(serializers.ModelSerializer):
-    url = serializers.URLField(source='bookmark.url')
+
+    bookmark = MainSerializer(read_only=True)
+    """url = serializers.URLField(source='bookmark.url')
     title = serializers.CharField(source='bookmark.title')
     favicon = serializers.URLField(source='bookmark.favicon')
-    description = serializers.URLField(source='bookmark.description')
+    description = serializers.URLField(source='bookmark.description')"""
 
     class Meta:
         model = Favorite
-        fields = ['url', 'title', 'favicon', 'description', 'user']
+        #fields = ['url', 'title', 'favicon', 'description', 'user']
+        fields = ['bookmark', 'user']
 
     def list(self, request):
         user = request.user

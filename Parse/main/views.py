@@ -68,7 +68,6 @@ class FavoriteViewSet(mixins.CreateModelMixin,
                       viewsets.GenericViewSet):
 
     queryset = Favorite.objects.all()
-    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
@@ -77,8 +76,8 @@ class FavoriteViewSet(mixins.CreateModelMixin,
 
     def get_permissions(self):
         if self.action == 'destroy':
-            return [AdminOwnerPermission]
-        return [IsAuthenticated]
+            return [AdminOwnerPermission()]
+        return [IsAuthenticated()]
 
     def get_serializer_class(self):
         if self.action == 'create':
