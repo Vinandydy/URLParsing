@@ -48,9 +48,8 @@ class MainDetailSerializer(serializers.ModelSerializer):
 class FavoriteCreateSerializer(serializers.ModelSerializer):
     bookmark = serializers.PrimaryKeyRelatedField(
         queryset=Bookmark.objects.filter(time_deleted__isnull=True),
-        default=None,
         required=False,
-        allow_null=True,
+        allow_null=False,
         label="Закладка",
     )
 
@@ -59,15 +58,10 @@ class FavoriteCreateSerializer(serializers.ModelSerializer):
         fields = ['bookmark']
 
     def validate(self, attrs):
-        request = self.context.get('request')
-        user = request.user
         bookmark = attrs['bookmark']
         if bookmark is None:
             raise ValidationError("Нету закладки")
-
-        if Favorite.objects.filter(bookmark=bookmark, user=user).exists():
-            raise serializers.ValidationError('Такая закладка этим пользователем уже добавлена')
-        return bookmark
+        return attrs
 
     def create(self, validated_data):
         request = self.context.get('request')
@@ -79,14 +73,9 @@ class FavoriteCreateSerializer(serializers.ModelSerializer):
 class FavoriteSerializer(serializers.ModelSerializer):
 
     bookmark = MainSerializer(read_only=True)
-    """url = serializers.URLField(source='bookmark.url')
-    title = serializers.CharField(source='bookmark.title')
-    favicon = serializers.URLField(source='bookmark.favicon')
-    description = serializers.URLField(source='bookmark.description')"""
 
     class Meta:
         model = Favorite
-        #fields = ['url', 'title', 'favicon', 'description', 'user']
         fields = ['bookmark', 'user']
 
     def list(self, request):

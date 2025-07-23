@@ -16,6 +16,7 @@ from rest_framework.decorators import action, permission_classes
 from .serializers import *
 from .services import partial, xlsx_format, AdminOwnerPermission
 from .filters import BookmarkFilter
+from .permissions import CustomPermission
 from .managers import BookmarkManager
 # Create your views here.
 
@@ -77,6 +78,8 @@ class FavoriteViewSet(mixins.CreateModelMixin,
     def get_permissions(self):
         if self.action == 'destroy':
             return [AdminOwnerPermission()]
+        elif self.action == 'create':
+            return [CustomPermission()]
         return [IsAuthenticated()]
 
     def get_serializer_class(self):
