@@ -15,7 +15,7 @@ class MainPostSerializer(serializers.ModelSerializer):
         existing = Bookmark.objects.filter(url=url).first()
         if existing:
             raise ValidationError("Такое URL уже существует")
-        return url
+        return attrs
 
     def create(self, validated_data):
         url = validated_data['url']
