@@ -1,8 +1,7 @@
 from django.db import models
 from .managers import BookmarkManager
 from django.utils import timezone
-from django.db.models.signals import post_save
-from django.dispatch import receiver
+
 
 class Group(models.Model):
     name = models.CharField(max_length=255, unique=True)
@@ -58,8 +57,4 @@ class Favorite(models.Model):
         verbose_name_plural = 'Избранные закладки пользователей'
         unique_together = (('bookmark', 'user'),)
 
-@receiver(post_save, sender=Bookmark)
-def favorite_signal(sender, instance: Bookmark, created: bool, **kwargs):
-    obj = Favorite.objects.filter(bookmark=instance)
-    obj.delete()
-    print(f"{instance} deleted!")
+

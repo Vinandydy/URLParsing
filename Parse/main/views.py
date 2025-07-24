@@ -14,9 +14,9 @@ from rest_framework.permissions import IsAdminUser, AllowAny, IsAuthenticated
 from rest_framework.decorators import action, permission_classes
 
 from .serializers import *
-from .services import partial, xlsx_format, AdminOwnerPermission
+from .services import partial, xlsx_format
 from .filters import BookmarkFilter
-from .permissions import CustomPermission
+from .permissions import CustomPermission, AdminOwnerPermission
 from .managers import BookmarkManager
 # Create your views here.
 
@@ -44,12 +44,6 @@ class MainApiView(mixins.CreateModelMixin,
         elif self.action in ['retrieve', 'destroy']:
             return MainDetailSerializer
         return MainSerializer
-
-    def destroy(self, request, *args, **kwargs):
-        bookmark = self.get_object()
-        bookmark.time_deleted = timezone.now()
-        bookmark.save()
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(
         detail=False,
@@ -86,12 +80,6 @@ class FavoriteViewSet(mixins.CreateModelMixin,
         if self.action == 'create':
             return FavoriteCreateSerializer
         return FavoriteSerializer
-
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status.HTTP_201_CREATED)
 
     def destroy(self, request, *args, **kwargs):
         data = self.get_object()

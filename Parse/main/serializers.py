@@ -48,7 +48,7 @@ class MainDetailSerializer(serializers.ModelSerializer):
 class FavoriteCreateSerializer(serializers.ModelSerializer):
     bookmark = serializers.PrimaryKeyRelatedField(
         queryset=Bookmark.objects.filter(time_deleted__isnull=True),
-        required=False,
+        required=True,
         allow_null=False,
         label="Закладка",
     )
@@ -77,7 +77,3 @@ class FavoriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Favorite
         fields = ['bookmark', 'user']
-
-    def list(self, request):
-        user = request.user
-        return Favorite.objects.filter(user__exact=user)

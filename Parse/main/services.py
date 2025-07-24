@@ -41,11 +41,6 @@ def partial(url):
             "url": url
         }
 
-class AdminOwnerPermission(permissions.BasePermission):
-    def custom_permission(self, request, view, obj):
-        return request.user.is_staff or obj.user == request.user
-
-
 def xlsx_format(queryset):
     df = pd.DataFrame.from_records(queryset.values(), exclude=['time_created', 'time_deleted'])
 
