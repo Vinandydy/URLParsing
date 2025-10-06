@@ -10,6 +10,7 @@ from rest_framework.permissions import IsAdminUser, AllowAny
 from .serializers import *
 from .services import partial, CustomPagination
 from .filters import BookmarkFilter
+from .models import VideoBookmark, ArticleBookmark, RecipeBookmark
 # Create your views here.
 
 
@@ -24,7 +25,6 @@ class MainApiView(mixins.CreateModelMixin,
     filterset_class = BookmarkFilter
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     search_fields = ['title', 'url']
-    queryset = Bookmark.objects.all()
 
     #Тут интересно почему в скобках все пишут, не очень понятен момент
     def get_permissions(self):
@@ -47,3 +47,15 @@ class MainApiView(mixins.CreateModelMixin,
         return Response(serializer.data, status.HTTP_201_CREATED)
 
 
+
+
+class VideoBookmarkAPI(MainApiView):
+    queryset = VideoBookmark.objects.all()
+
+
+class ArticleBookmarkAPI(MainApiView):
+    queryset = ArticleBookmark.objects.all()
+
+
+class RecipeBookmarkAPI(MainApiView):
+    queryset = RecipeBookmark.objects.all()

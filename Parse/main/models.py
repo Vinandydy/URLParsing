@@ -23,8 +23,6 @@ class Bookmark(models.Model):
         related_name='bookmarks',
     )
 
-    objects = BookmarkManager()
-
     class Meta:
         constraints = [
             models.UniqueConstraint(
@@ -52,6 +50,7 @@ class VideoBookmark(Bookmark):
     author = models.CharField()
     preview = models.ImageField()
 
+    objects = BookmarkManager()
 
 class ArticleBookmark(Bookmark):
     themes = (
@@ -64,6 +63,7 @@ class ArticleBookmark(Bookmark):
     length = models.TimeField()
     published = models.DateField()
 
+    objects = BookmarkManager()
 
 class RecipeBookmark(Bookmark):
     categories = (
@@ -82,4 +82,4 @@ class RecipeBookmark(Bookmark):
     difficult = models.CharField(choices=difficulties)
     duration = models.TimeField()
 
-
+    objects = BookmarkManager()

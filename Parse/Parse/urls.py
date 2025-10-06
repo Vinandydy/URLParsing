@@ -18,10 +18,12 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
 
-from main.views import MainApiView
+from main.views import ArticleBookmarkAPI, VideoBookmarkAPI, RecipeBookmarkAPI
 
 router = routers.SimpleRouter()
-router.register(r'URL', MainApiView, basename='main')
+router.register(r'video', VideoBookmarkAPI, basename='video')
+router.register(r'article', VideoBookmarkAPI, basename='article')
+router.register(r'recipe', VideoBookmarkAPI, basename='recipe')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
