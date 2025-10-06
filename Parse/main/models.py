@@ -33,7 +33,53 @@ class Bookmark(models.Model):
                 name='URL_UNIQUE_IF_NOT_DELETED',
             )
         ]
+        abstract = True
 
     def delete(self, using=None, keep_parents=False):
         self.time_deleted = timezone.now()
         self.save()
+
+
+class VideoBookmark(Bookmark):
+    platforms = (
+        ('youtube', 'YouTube'),
+        ('tiktok', 'TikTok'),
+        ('vk', 'VK'),
+        ('other', 'Other')
+    )
+    duration = models.TimeField()
+    hosting = models.CharField(choices=platforms)
+    author = models.CharField()
+    preview = models.ImageField()
+
+
+class ArticleBookmark(Bookmark):
+    themes = (
+        ('it', 'IT'),
+        ('money', 'Money'),
+        ('history', 'History'),
+        ('other', 'Other')
+    )
+    theme = models.CharField(choices=themes)
+    length = models.TimeField()
+    published = models.DateField()
+
+
+class RecipeBookmark(Bookmark):
+    categories = (
+        ('breakfast', 'Breakfast'),
+        ('lunch', 'Lunch'),
+        ('dinner', 'Dinner'),
+        ('dessert', 'Dessert'),
+        ('other', 'Other')
+    )
+    difficulties = (
+        ('easy', 'Easy'),
+        ('medium', 'Medium'),
+        ('hard', 'Hard')
+    )
+    category = models.CharField(choices=categories)
+    difficult = models.CharField(choices=difficulties)
+    duration = models.TimeField()
+
+
