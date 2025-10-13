@@ -14,7 +14,7 @@ from .models import VideoBookmark, ArticleBookmark, RecipeBookmark
 # Create your views here.
 
 
-
+"""
 class MainApiView(mixins.CreateModelMixin,
                   mixins.ListModelMixin,
                   mixins.DestroyModelMixin,
@@ -46,16 +46,29 @@ class MainApiView(mixins.CreateModelMixin,
         serializer.save()
         return Response(serializer.data, status.HTTP_201_CREATED)
 
+"""
 
 
-
-class VideoBookmarkAPI(MainApiView):
+class VideoBookmarkAPI(mixins.CreateModelMixin,
+                  mixins.ListModelMixin,
+                  mixins.DestroyModelMixin,
+                  mixins.RetrieveModelMixin,
+                  viewsets.GenericViewSet):
     queryset = VideoBookmark.objects.all()
+    serializer_class = VideoSerializer
 
-
-class ArticleBookmarkAPI(MainApiView):
+class ArticleBookmarkAPI(mixins.CreateModelMixin,
+                  mixins.ListModelMixin,
+                  mixins.DestroyModelMixin,
+                  mixins.RetrieveModelMixin,
+                  viewsets.GenericViewSet):
     queryset = ArticleBookmark.objects.all()
+    serializer_class = ArticleSerializer
 
-
-class RecipeBookmarkAPI(MainApiView):
+class RecipeBookmarkAPI(mixins.CreateModelMixin,
+                  mixins.ListModelMixin,
+                  mixins.DestroyModelMixin,
+                  mixins.RetrieveModelMixin,
+                  viewsets.GenericViewSet):
     queryset = RecipeBookmark.objects.all()
+    serializer_class = RecipeSerializer

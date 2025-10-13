@@ -1,6 +1,8 @@
 from django.db import models
 from .managers import BookmarkManager
 from django.utils import timezone
+from polymorphic.models import PolymorphicModel
+from polymorphic.managers import PolymorphicManager
 
 # Create your models here.
 
@@ -9,7 +11,7 @@ class Group(models.Model):
     order = models.IntegerField()
 
 
-class Bookmark(models.Model):
+class Bookmark(PolymorphicModel):
     time_created = models.DateTimeField(auto_now_add=True)
     time_deleted = models.DateTimeField(null=True)
     favicon = models.URLField(null=True)
@@ -31,7 +33,8 @@ class Bookmark(models.Model):
                 name='URL_UNIQUE_IF_NOT_DELETED',
             )
         ]
-        abstract = True
+
+    objects = PolymorphicManager()
 
     def delete(self, using=None, keep_parents=False):
         self.time_deleted = timezone.now()
@@ -50,7 +53,6 @@ class VideoBookmark(Bookmark):
     author = models.CharField()
     preview = models.ImageField()
 
-    objects = BookmarkManager()
 
 class ArticleBookmark(Bookmark):
     themes = (
@@ -63,7 +65,6 @@ class ArticleBookmark(Bookmark):
     length = models.TimeField()
     published = models.DateField()
 
-    objects = BookmarkManager()
 
 class RecipeBookmark(Bookmark):
     categories = (
@@ -82,4 +83,3 @@ class RecipeBookmark(Bookmark):
     difficult = models.CharField(choices=difficulties)
     duration = models.TimeField()
 
-    objects = BookmarkManager()

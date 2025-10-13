@@ -22,8 +22,8 @@ from main.views import ArticleBookmarkAPI, VideoBookmarkAPI, RecipeBookmarkAPI
 
 router = routers.SimpleRouter()
 router.register(r'video', VideoBookmarkAPI, basename='video')
-router.register(r'article', VideoBookmarkAPI, basename='article')
-router.register(r'recipe', VideoBookmarkAPI, basename='recipe')
+router.register(r'article', ArticleBookmarkAPI, basename='article')
+router.register(r'recipe', RecipeBookmarkAPI, basename='recipe')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
