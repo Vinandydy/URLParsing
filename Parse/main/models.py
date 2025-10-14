@@ -1,8 +1,7 @@
 from django.db import models
-from .managers import BookmarkManager
 from django.utils import timezone
 from polymorphic.models import PolymorphicModel
-from polymorphic.managers import PolymorphicManager
+from .managers import BookmarkPolymorphicManager
 
 # Create your models here.
 
@@ -34,7 +33,7 @@ class Bookmark(PolymorphicModel):
             )
         ]
 
-    objects = PolymorphicManager()
+    objects = BookmarkPolymorphicManager()
 
     def delete(self, using=None, keep_parents=False):
         self.time_deleted = timezone.now()
