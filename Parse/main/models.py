@@ -2,6 +2,7 @@ from django.db import models
 from django.utils import timezone
 from polymorphic.models import PolymorphicModel
 from .managers import BookmarkPolymorphicManager
+from polymorphic.managers import PolymorphicManager
 
 # Create your models here.
 
@@ -33,7 +34,7 @@ class Bookmark(PolymorphicModel):
             )
         ]
 
-    objects = BookmarkPolymorphicManager()
+    objects = PolymorphicManager()
 
     def delete(self, using=None, keep_parents=False):
         self.time_deleted = timezone.now()
@@ -82,3 +83,11 @@ class RecipeBookmark(Bookmark):
     difficult = models.CharField(choices=difficulties)
     duration = models.TimeField()
 
+
+class ContentCollection(models.Model):
+    name = models.CharField(max_length=256)
+    description = models.CharField(max_length=1024, blank=True)
+    items = models.ManyToManyField(Bookmark, related_name='collections')
+
+    class Meta:
+        ordering = ['name']
