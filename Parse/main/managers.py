@@ -11,6 +11,7 @@ class BookmarkPolymorphicManager(PolymorphicManager):
         queryset = self.get_queryset()
         grouped_ids = queryset.values('content_type').annotate(object_ids=ArrayAgg('object_id'))
         result = {}
+
         for group in grouped_ids:
             ct_id = group['content_type']
             ids = group['object_ids']

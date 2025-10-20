@@ -49,3 +49,4 @@ class ContentCollectionAPI(mixins.CreateModelMixin,
 
     def get_queryset(self):
         return super().get_queryset().prefetch_related('bookmarks__content_object')
+

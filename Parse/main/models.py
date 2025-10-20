@@ -84,6 +84,7 @@ class RecipeBookmark(Bookmark):
     duration = models.TimeField()
 
 class ContentCollection(models.Model):
+
     name = models.CharField(max_length=255, verbose_name="Название")
     description = models.TextField(verbose_name="Описание")
     items = models.ManyToManyField(

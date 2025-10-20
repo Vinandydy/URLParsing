@@ -51,5 +51,4 @@ class ContentCollectionSerializer(serializers.ModelSerializer):
             elif type_name == 'recipe':
                 serialized_groups[type_name] = RecipeSerializer(objects, many=True).data
 
-
         return serialized_groups
