@@ -1,50 +1,9 @@
 from rest_framework import serializers
 from rest_polymorphic.serializers import PolymorphicSerializer
 
-from main.models import Bookmark, RecipeBookmark, VideoBookmark, ArticleBookmark
+from main.models import Bookmark, RecipeBookmark, VideoBookmark, ArticleBookmark, ContentCollection
 from main.services import partial
-"""#Сериалайзер POST запроса, по ТЗ требуется, чтобы пользователь только URL достаточно было ввести
-class MainPostSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Bookmark
-        fields = ['url']
 
-
-    def create(self, validated_data):
-        url = validated_data['url']
-
-        existing = Bookmark.objects.filter(url=url).first()
-        #Тут мне не позволило ошибку передать (мб что-то напутал) (как лучше сделать)
-        if existing: return existing
-
-        parsed = partial(url)
-        if 'error' in parsed:
-            #Попробовал с raise, для получения ошибки, но мне все же кажется, что есть более качественный способ
-            raise serializers.ValidationError('Проблема с URL')
-
-        parsed_url = Bookmark.objects.create(
-            url = url,
-            title = parsed['name'],
-            favicon = parsed['favicon'],
-            description = parsed['description']
-        )
-
-        return parsed_url
-
-
-
-
-class MainSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Bookmark
-        fields = ['url', 'title', 'favicon']
-
-
-class MainDetailSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Bookmark
-        fields = ['id', 'title', 'description', 'url', 'time_created']
-"""
 
 class ArticleSerializer(serializers.ModelSerializer):
     class Meta:
@@ -70,3 +29,27 @@ class BookmarkMapping(PolymorphicSerializer):
         ArticleBookmark: ArticleSerializer,
         RecipeBookmark: RecipeSerializer
     }
+
+
+class ContentCollectionSerializer(serializers.ModelSerializer):
+    bookmarks_by_type = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ContentCollection
+        fields = ['id', 'name', 'description', 'bookmarks_by_type']
+
+    def get_by_type(self, obj):
+        bookmarks_qs = obj.bookmarks.all()
+        grouped = bookmarks_qs.objects.by_type()
+
+        serialized_groups = {}
+        for type_name, objects in grouped.items():
+            if type_name == 'article':
+                serialized_groups[type_name] = ArticleSerializer(objects, many=True).data
+            elif type_name == 'video':
+                serialized_groups[type_name] = VideoSerializer(objects, many=True).data
+            elif type_name == 'recipe':
+                serialized_groups[type_name] = RecipeSerializer(objects, many=True).data
+
+
+        return serialized_groups

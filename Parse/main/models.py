@@ -1,6 +1,6 @@
 from django.db import models
-from .managers import BookmarkManager
 from django.utils import timezone
+from .managers import BookmarkPolymorphicManager
 from polymorphic.models import PolymorphicModel
 from polymorphic.managers import PolymorphicManager
 
@@ -83,3 +83,14 @@ class RecipeBookmark(Bookmark):
     difficult = models.CharField(choices=difficulties)
     duration = models.TimeField()
 
+class ContentCollection(models.Model):
+    name = models.CharField(max_length=255, verbose_name="Название")
+    description = models.TextField(verbose_name="Описание")
+    items = models.ManyToManyField(
+        Bookmark,
+        related_name='collections',
+        verbose_name="Элементы (закладки)",
+        blank=True
+    )
+
+    objects = BookmarkPolymorphicManager()
